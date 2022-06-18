@@ -3,8 +3,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.sound.midi.VoiceStatus;
-
 import document.Document;
 
 /**
@@ -92,14 +90,26 @@ public class ConnectMySQL {
 
     if(categoryID >= 0 && topicId >= 0){
       //insertion dans la bdd
-      String sql = "INSERT INTO DOCUMENT (DocumentName, DocumentDate, StorageAdresse, TopicID, CategoryID) values ('%s', '%s', '%s', %2d, %2d)"
-        .formatted(
+      String sql;
+      if(document.getDocumentDate() == null){
+        sql = "INSERT INTO DOCUMENT (DocumentName, StorageAdresse, TopicID, CategoryID) values ('%s', '%s', %2d, %2d)"
+          .formatted(
+          document.getDocumentName(),
+          document.getStorageAdress(), 
+          topicId, 
+          categoryID
+        );
+      }else{
+        sql = "INSERT INTO DOCUMENT (DocumentName, DocumentDate, StorageAdresse, TopicID, CategoryID) values ('%s', '%s', '%s', %2d, %2d)"
+          .formatted(
           document.getDocumentName(),
           document.getDocumentDate(), 
           document.getStorageAdress(), 
           topicId, 
           categoryID
         );
+      }
+        
 
         //exécuter la requete
         try {
@@ -196,22 +206,56 @@ public class ConnectMySQL {
   }
 
   //méthode pour récupérer les occurence des tags
-public static HashMap<String, Integer> countsOfTags(java.sql.Statement db){
-  String sql = "SELECT count(*), Tag from Tag natural join avoir group by Tag order by count(*) desc";
-  HashMap<String, Integer> result = new HashMap<>();
+  public static HashMap<String, Integer> countsOfTags(java.sql.Statement db){
+    String sql = "SELECT count(*), Tag from Tag natural join avoir group by Tag order by count(*) desc";
+    HashMap<String, Integer> result = new HashMap<>();
 
-  try {
-    ResultSet res = db.executeQuery(sql);
-    while(res.next()){
-      String tag = res.getString("Tag");
-      int count = res.getInt("count(*)");
-      System.out.println("Le tag : " + tag + " apparait " + count + " fois ...");
-      result.put(tag, count);
+    try {
+      ResultSet res = db.executeQuery(sql);
+      while(res.next()){
+        String tag = res.getString("Tag");
+        int count = res.getInt("count(*)");
+        System.out.println("Le tag : " + tag + " apparait " + count + " fois ...");
+        result.put(tag, count);
+      }
+    } catch (Exception e) {
+      System.out.print(e);
     }
-  } catch (Exception e) {
-    System.out.print(e);
+    return result;
   }
-  return result;
-}
+
+  public static void putDateLastNullDateInserted(java.sql.Statement db, Date date){
+    //requête pour récupérer l'id du dernier doc inséré
+    String sqlGetLastID = "SELECT DocumentID from document order by DocumentID desc limit 1";
+    String sql = "UPDATE document set DocumentDate ='" + date +"' WHERE DocumentID = (SELECT * FROM(%s)tblTemp)"
+      .formatted(sqlGetLastID);
+    try {
+      db.executeUpdate(sql);
+      System.out.println("Mis a jour faite ! ");
+    } catch (Exception e) {
+      System.out.println("Erreur dans la mise a jour ....");
+      System.out.println(e);
+    }
+  }
+
+  //fonction pour inséré un nouveau tag au dernier document
+  public static void insertNewTagToLast(java.sql.Statement db, String tag){
+    //on a besoin du nom du dernier document pour utiliser la fonction insertTag déjà codée
+    String sql = "SELECT DocumentName FROM document ORDER BY DocumentID desc limit 1";
+    try{
+      ResultSet res = db.executeQuery(sql);
+      String documentName = "";
+      if(res.next()){
+        documentName = res.getString("DocumentName");
+      }
+      ArrayList<String> tagList = new ArrayList<>();
+      tagList.add(tag);
+      insertTag(tagList, db, documentName);
+      System.out.println("Tag ajouté !");
+    }catch(SQLException e){
+      System.out.println("PRobleme fonction insertNewTagToLast");
+      System.out.print(e);
+    }
+  }
 
 }

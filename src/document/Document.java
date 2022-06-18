@@ -39,6 +39,18 @@ public class Document {
         this.tag = new ArrayList<>();
     }
 
+
+    //constructeur sans date mais avec tag liste
+    public Document(String documentName, String storageAdress, String category, String topic, ArrayList<String> tag) {
+        this.documentName = documentName;
+        this.storageAdress = storageAdress;
+        this.category = category;
+        this.topic = topic;
+        this.tag = tag;
+    }
+
+
+
     //add a tag
     public void addTag(String tag){
         this.tag.add(tag);

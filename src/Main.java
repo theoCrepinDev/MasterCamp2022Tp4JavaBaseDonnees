@@ -64,7 +64,7 @@ public class Main {
 
           //Connection à la bdd
 
-          db = ConnectMySQL.connection("db_tp4mastercamp", "root", "Tekxover123?");
+          db = ConnectMySQL.connection("db_tp4", "root", "Tekxover123?");
           System.out.println("Connecté à la base de données !");
           // ArrayList<String> doctag = new ArrayList<>();
           // doctag.add("Tag1");
@@ -77,6 +77,22 @@ public class Main {
           // ArrayList<Document> res = ConnectMySQL.selectAllOrderByTopic(db);
           // System.out.println(res);
           //ConnectMySQL.mostUsedTopic(db);
+
+          //Création dicument sans date
+          // ArrayList<String> tagDocument = new ArrayList<>();
+          // tagDocument.add("Tag1");
+          // tagDocument.add("Tag2Bis");
+          // tagDocument.add("Tag4");
+          // Document documentSansDate = new Document("Document sans date", "storageAdress", "Documentaires", "Politique", tagDocument);
+          // //Ajout document bdd sans date
+          // ConnectMySQL.insert(documentSansDate, db);
+
+          //mise a jour de la date du dernier document inséré
+          //ConnectMySQL.putDateLastNullDateInserted(db, Date.valueOf("2010-12-10"));
+
+          //Ajout tag au dernier document ajouté
+          ConnectMySQL.insertNewTagToLast(db, "NewTag");
+
           ConnectMySQL.countsOfTags(db);
           db.close();
      }
