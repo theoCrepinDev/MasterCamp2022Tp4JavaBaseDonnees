@@ -1,6 +1,9 @@
 package db;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.sound.midi.VoiceStatus;
 
 import document.Document;
 
@@ -109,7 +112,106 @@ public class ConnectMySQL {
           System.out.println(e);
         }
 
+    }else{
+      System.out.println("Erreur de catégorie et/ou de topic");
     }
   }
+
+  //méthode affichage livres order by Category Name
+  public static ArrayList<Document> selectAllOrderByCategory(java.sql.Statement db){
+    ArrayList<Document> result = new ArrayList<>();
+    String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t order by c.Name";
+
+    try{
+      ResultSet res = db.executeQuery(sql);
+      ArrayList<Integer> documentID= new ArrayList<>();
+      while(res.next()){
+        int docID = res.getInt("DocumentID");
+        Document doc = new Document(res.getString("DocumentName"), Date.valueOf(res.getString("DocumentDate")), res.getString("StorageAdresse"), res.getString("Name"), res.getString("topic"));
+        documentID.add(docID);
+        result.add(doc);      
+      }
+      for(int i =0; i < result.size(); i++){
+        String sqlTag = "SELECT Tag FROM tag Natural JOIN avoir WHERE DocumentID =" + documentID.get(i);
+        ResultSet resTag = db.executeQuery(sqlTag);
+        while(resTag.next()){
+          result.get(i).addTag(resTag.getString("Tag"));
+        }
+      }
+       return result;     
+    }
+    catch(SQLException e){
+      System.out.println(e);
+      System.out.println("Erreur dans le Select");
+      return result;
+    }
+  }
+
+  //méthode affichage livres order by Topic Name
+  public static ArrayList<Document> selectAllOrderByTopic(java.sql.Statement db){
+    ArrayList<Document> result = new ArrayList<>();
+    String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t order by t.Topic";
+
+    try{
+      ResultSet res = db.executeQuery(sql);
+      ArrayList<Integer> documentID= new ArrayList<>();
+      while(res.next()){
+        int docID = res.getInt("DocumentID");
+        Document doc = new Document(res.getString("DocumentName"), Date.valueOf(res.getString("DocumentDate")), res.getString("StorageAdresse"), res.getString("Name"), res.getString("topic"));
+        documentID.add(docID);
+        result.add(doc);      
+      }
+      for(int i =0; i < result.size(); i++){
+        String sqlTag = "SELECT Tag FROM tag Natural JOIN avoir WHERE DocumentID =" + documentID.get(i);
+        ResultSet resTag = db.executeQuery(sqlTag);
+        while(resTag.next()){
+          result.get(i).addTag(resTag.getString("Tag"));
+        }
+      }
+       return result;     
+    }
+    catch(SQLException e){
+      System.out.println(e);
+      System.out.println("Erreur dans le Select");
+      return result;
+    }
+  }
+
+  //méthode pour récupérer le dujet le plus férquent
+  public static String mostUsedTopic(java.sql.Statement db){
+    String sql = "SELECT count(*), Topic from topic natural join document group by Topic order by count(*) desc limit 1";
+    try {
+      ResultSet res =db.executeQuery(sql);
+      if(res.next()){
+        String topicName = res.getString("Topic");
+        int count = res.getInt("count(*)");
+        System.out.println("Sujet le plus utilisé : " + topicName + " avec " + count +" apparitions ...");
+        return topicName;
+      }
+    } catch (Exception e) {
+      System.out.println(e);
+      System.out.println("Erreur récupération topic le plus utilisé ...");
+    }
+    return "0";
+  }
+
+  //méthode pour récupérer les occurence des tags
+public static HashMap<String, Integer> countsOfTags(java.sql.Statement db){
+  String sql = "SELECT count(*), Tag from Tag natural join avoir group by Tag order by count(*) desc";
+  HashMap<String, Integer> result = new HashMap<>();
+
+  try {
+    ResultSet res = db.executeQuery(sql);
+    while(res.next()){
+      String tag = res.getString("Tag");
+      int count = res.getInt("count(*)");
+      System.out.println("Le tag : " + tag + " apparait " + count + " fois ...");
+      result.put(tag, count);
+    }
+  } catch (Exception e) {
+    System.out.print(e);
+  }
+  return result;
+}
 
 }

@@ -30,6 +30,20 @@ public class Document {
         this.tag = tag;
     }
 
+    public Document(String documentName, Date documentDate, String storageAdress, String category, String topic) {
+        this.documentName = documentName;
+        this.documentDate = documentDate;
+        this.storageAdress = storageAdress;
+        this.category = category;
+        this.topic = topic;
+        this.tag = new ArrayList<>();
+    }
+
+    //add a tag
+    public void addTag(String tag){
+        this.tag.add(tag);
+    }
+
 
     //guetteur and setter
 
@@ -79,6 +93,11 @@ public class Document {
 
     public void setTag(ArrayList<String> tag) {
         this.tag = tag;
+    }
+
+    @Override
+    public String toString(){
+        return "Nom : " + this.documentName + "\nDate : " + documentDate + "\nAdresse Stockage : " + storageAdress + "\nCatégorie : " +category + "\nTopic : " + topic + "\nTags : " + tag + "\n\n";
     }
     
 }
