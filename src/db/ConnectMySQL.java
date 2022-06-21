@@ -226,7 +226,7 @@ public class ConnectMySQL {
     }
   }
 
-  //méthode affichage livres order by Topic Name
+  //méthode affichage livre du topic donné
   public static ArrayList<Document> selectFromTopic(String topic, java.sql.Statement db){
     ArrayList<Document> result = new ArrayList<>();
     String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t WHERE topic='" + topic +"'";
@@ -256,7 +256,37 @@ public class ConnectMySQL {
     }
   }
 
-  //méthode pour récupérer le dujet le plus férquent
+  //méthode pour récupérer les livres du tag donné.
+  public static ArrayList<Document> selectFromTag(String tag, java.sql.Statement db){
+    ArrayList<Document> result = new ArrayList<>();
+    String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN topic t NATURAL join category c NATURAL JOIN avoir a NATURAL JOIN tag ta WHERE tag='" + tag +"'";
+
+    try{
+      ResultSet res = db.executeQuery(sql);
+      ArrayList<Integer> documentID= new ArrayList<>();
+      while(res.next()){
+        int docID = res.getInt("DocumentID");
+        Document doc = new Document(res.getString("DocumentName"), Date.valueOf(res.getString("DocumentDate")), res.getString("StorageAdresse"), res.getString("Name"), res.getString("topic"));
+        documentID.add(docID);
+        result.add(doc);      
+      }
+      for(int i =0; i < result.size(); i++){
+        String sqlTag = "SELECT Tag FROM tag Natural JOIN avoir WHERE DocumentID =" + documentID.get(i);
+        ResultSet resTag = db.executeQuery(sqlTag);
+        while(resTag.next()){
+          result.get(i).addTag(resTag.getString("Tag"));
+        }
+      }
+       return result;     
+    }
+    catch(SQLException e){
+      System.out.println(e);
+      System.out.println("Erreur dans le Select");
+      return result;
+    }
+  }
+
+  //méthode pour récupérer le sujet le plus férquent
   public static String mostUsedTopic(java.sql.Statement db){
     String sql = "SELECT count(*), Topic from topic natural join document group by Topic order by count(*) desc limit 1";
     try {

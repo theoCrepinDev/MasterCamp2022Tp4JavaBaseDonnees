@@ -80,8 +80,9 @@ public class Main {
           // on récupère les document pour une certaine catégory
           // ArrayList<Document> res = ConnectMySQL.selectFromCategory("Archives", db);
           //on récupère les documents pour un certain toppic
-          
           // ArrayList<Document> res = ConnectMySQL.selectFromTopic("Administratif", db);
+          // on récupère les livres d'un tag donné
+          // ArrayList<Document> res = ConnectMySQL.selectFromTag("Tag2", db);
           // System.out.println(res);
           //ConnectMySQL.mostUsedTopic(db);
 
