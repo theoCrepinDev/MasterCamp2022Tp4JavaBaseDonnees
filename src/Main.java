@@ -64,7 +64,7 @@ public class Main {
 
           //Connection à la bdd
 
-          db = ConnectMySQL.connection("db_tp4", "root", "Tekxover123?");
+          db = ConnectMySQL.connection("db_tp4mastercamp", "root", "Tekxover123?");
           System.out.println("Connecté à la base de données !");
           // ArrayList<String> doctag = new ArrayList<>();
           // doctag.add("Tag1");
@@ -73,8 +73,15 @@ public class Main {
           // Document doc = new Document("Livre de la jungle", Date.valueOf("2010-10-10"), "storageAdress", "Livres", "Administratif", doctag);
           // insertionDocument(doc);
 
+          //on récupère les documents ordonnés par cattegory
           //ArrayList<Document> res = ConnectMySQL.selectAllOrderByCategory(db);
+          //on récupère les documents ordonnés par topic
           // ArrayList<Document> res = ConnectMySQL.selectAllOrderByTopic(db);
+          // on récupère les document pour une certaine catégory
+          // ArrayList<Document> res = ConnectMySQL.selectFromCategory("Archives", db);
+          //on récupère les documents pour un certain toppic
+          
+          // ArrayList<Document> res = ConnectMySQL.selectFromTopic("Administratif", db);
           // System.out.println(res);
           //ConnectMySQL.mostUsedTopic(db);
 
@@ -91,9 +98,16 @@ public class Main {
           //ConnectMySQL.putDateLastNullDateInserted(db, Date.valueOf("2010-12-10"));
 
           //Ajout tag au dernier document ajouté
-          ConnectMySQL.insertNewTagToLast(db, "NewTag");
+          //ConnectMySQL.insertNewTagToLast(db, "NewTag");
 
-          ConnectMySQL.countsOfTags(db);
+          //test insertion avec nouveau topic et catégory
+          // ArrayList<String> tagDocument1 = new ArrayList<>();
+          // tagDocument1.add("Tag1");
+          // tagDocument1.add("Tag2");
+          // document1 = new Document("Document zeztest 1", Date.valueOf("2022-10-10"), "Addresse de stockage", "Normeseze", "Administratifazdad", tagDocument1);
+          // insertionDocument(document1);
+
+          // ConnectMySQL.countsOfTags(db);
           db.close();
      }
 }

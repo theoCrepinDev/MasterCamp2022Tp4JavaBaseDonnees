@@ -25,18 +25,22 @@ public class ConnectMySQL {
   }
 
   //méthode pour récupérer l'id d'un topic
-  public static int getIdTopic(String Topic, java.sql.Statement db){
+  public static int getIdTopic(String topic, java.sql.Statement db){
     String sql = "SELECT TopicID FROM topic WHERE Topic='";
     try {
-      ResultSet result = db.executeQuery(sql + Topic +"'");
+      ResultSet result = db.executeQuery(sql + topic +"'");
       if(result.next()){
         return result.getInt("TopicID");
+      }else{
+        System.out.println("Ajout du topic : " + topic +" ... ");
+        String sqlAjoutTopic = "INSERT INTO topic (topic) values ('" + topic + "')";
+        db.executeUpdate(sqlAjoutTopic);
+        return getIdTopic(topic, db);
       }
     } catch (SQLException e) {
       System.out.print(e);
       return -1 ;
     }
-    return -2;
   }
 
   //on récupère l'ID de catégory
@@ -45,13 +49,18 @@ public class ConnectMySQL {
     try {
       ResultSet result = db.executeQuery(sql + category +"'");
       if(result.next()){
+        //si catégorie déja dans la bdd
         return result.getInt("CategoryID");
+      }else{
+        System.out.println("Ajout de la catégorie : " + category +" ... ");
+        String sqlAjoutCategory = "INSERT INTO category (name) values ('" + category + "')";
+        db.executeUpdate(sqlAjoutCategory);
+        return getIdCategory(category, db);
       }
     } catch (SQLException e) {
       System.out.print(e);
       return -1 ;
     }
-    return -2;
   }
 
   //stockage des tag
@@ -127,10 +136,40 @@ public class ConnectMySQL {
     }
   }
 
-  //méthode affichage livres order by Category Name
+  //méthode affichage tous les livres order by Category Name
   public static ArrayList<Document> selectAllOrderByCategory(java.sql.Statement db){
     ArrayList<Document> result = new ArrayList<>();
     String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t order by c.Name";
+
+    try{
+      ResultSet res = db.executeQuery(sql);
+      ArrayList<Integer> documentID= new ArrayList<>();
+      while(res.next()){
+        int docID = res.getInt("DocumentID");
+        Document doc = new Document(res.getString("DocumentName"), Date.valueOf(res.getString("DocumentDate")), res.getString("StorageAdresse"), res.getString("Name"), res.getString("topic"));
+        documentID.add(docID);
+        result.add(doc);      
+      }
+      for(int i =0; i < result.size(); i++){
+        String sqlTag = "SELECT Tag FROM tag Natural JOIN avoir WHERE DocumentID =" + documentID.get(i);
+        ResultSet resTag = db.executeQuery(sqlTag);
+        while(resTag.next()){
+          result.get(i).addTag(resTag.getString("Tag"));
+        }
+      }
+       return result;     
+    }
+    catch(SQLException e){
+      System.out.println(e);
+      System.out.println("Erreur dans le Select");
+      return result;
+    }
+  }
+
+  //méthode affichage des livres de la catégorie donnée
+  public static ArrayList<Document> selectFromCategory(String category, java.sql.Statement db){
+    ArrayList<Document> result = new ArrayList<>();
+    String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t WHERE c.name ='" + category +"'";
 
     try{
       ResultSet res = db.executeQuery(sql);
@@ -161,6 +200,36 @@ public class ConnectMySQL {
   public static ArrayList<Document> selectAllOrderByTopic(java.sql.Statement db){
     ArrayList<Document> result = new ArrayList<>();
     String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t order by t.Topic";
+
+    try{
+      ResultSet res = db.executeQuery(sql);
+      ArrayList<Integer> documentID= new ArrayList<>();
+      while(res.next()){
+        int docID = res.getInt("DocumentID");
+        Document doc = new Document(res.getString("DocumentName"), Date.valueOf(res.getString("DocumentDate")), res.getString("StorageAdresse"), res.getString("Name"), res.getString("topic"));
+        documentID.add(docID);
+        result.add(doc);      
+      }
+      for(int i =0; i < result.size(); i++){
+        String sqlTag = "SELECT Tag FROM tag Natural JOIN avoir WHERE DocumentID =" + documentID.get(i);
+        ResultSet resTag = db.executeQuery(sqlTag);
+        while(resTag.next()){
+          result.get(i).addTag(resTag.getString("Tag"));
+        }
+      }
+       return result;     
+    }
+    catch(SQLException e){
+      System.out.println(e);
+      System.out.println("Erreur dans le Select");
+      return result;
+    }
+  }
+
+  //méthode affichage livres order by Topic Name
+  public static ArrayList<Document> selectFromTopic(String topic, java.sql.Statement db){
+    ArrayList<Document> result = new ArrayList<>();
+    String sql = "SELECT d.DocumentID, d.DocumentName, d.DocumentDate, d.StorageAdresse, c.Name, t.topic FROM document d NATURAL JOIN category c NATURAL JOIN topic t WHERE topic='" + topic +"'";
 
     try{
       ResultSet res = db.executeQuery(sql);
